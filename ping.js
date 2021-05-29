@@ -1,3 +1,7 @@
+const express = require('express');
+const http = require('http');
+const app = express();
+const server = http.Server(app);
 const cron = require('node-cron');
 const mongoose = require('mongoose');
 const _ = require('lodash');
@@ -35,3 +39,12 @@ try {
 } catch (error) {
   console.log(error.message);
 }
+
+app.get('*', (req, res) => {
+  res.json({msg: 'hello'})
+});
+
+const port = process.env.PORT || 3000;
+app.set('port', port);
+
+server.listen(port, () => console.log(`Our server is running on: ${port}`));
