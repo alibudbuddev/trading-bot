@@ -3,14 +3,14 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 const moment = require('moment-timezone');
 moment.tz.setDefault('Asia/Dubai');
-const isBounce = require('./lib/patterns/bounce');
+const detectPattern = require('currency-pattern-detector/build').default;
 const MONGODB_DATABASE = 'mongodb+srv://pmiGTtest:123qwe@cluster0.v5zev.mongodb.net/binance_test?authSource=admin&replicaSet=atlas-jyx4bp-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true';
 const { _binanceCore, _openOrders, _candleData, _assetBalance, _cancelAllOrders } = require('./lib/binance');
 const WalletController = require('./controllers/wallet-controller');
 const OrderBookController = require('./controllers/orderbook-controller');
 const OrderHistoryController = require('./controllers/orderhistory-controller');
 const _fiatAsset = 'BUSD';
-const _altAsset = 'DOGE';
+const _altAsset = 'XRP';
 const _pair = `${_altAsset}${_fiatAsset}`;
 const _tpPercentage = 0.005;
 
@@ -29,11 +29,9 @@ const start = async () => {
     const response = await OrderBookController.getAll();
 
     // If success process and no pending orders. Then check candles.
-    console.log('running')
     if(response.success && response.payload.length < 1) {
       findAndBuy();
     } else {
-      console.log('Running find and sell');
       _binanceCore.prices(_pair, async (error, ticker) => {
         if(!error) {
           const currentPrice = parseFloat(ticker[_pair]);
@@ -76,11 +74,14 @@ const start = async () => {
 };
 
 const findAndBuy = async () => {
-  const response = await _candleData(_pair, '1m', 6);
-  
-  console.log('Running find and buy');
+  const response = await _candleData(_pair);
   if(response.success) {
-    if(isBounce(response.bars)) {
+    const candles = response.bars;
+    candles.pop();
+    const pattern = detectPattern(candles);
+
+    // Check if bullish pattern is in choices of pattern
+    if(checkIfPatternIsValid(pattern.bullish)) {
       const balanceResp = await getBalance();
       const currentBalance = balanceResp.payload.balance;
       const budgetLimit = 100;
