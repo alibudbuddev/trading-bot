@@ -78,7 +78,6 @@ const start = async () => {
 
 const findAndBuy = async () => {
   const response = await _candleData(_pair, '1m', 6);
-  console.log(response);
   console.log('Running find and buy');
   if(response.success) {
     if(isBounce(response.bars)) {
