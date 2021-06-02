@@ -30,7 +30,6 @@ const start = async () => {
     const response = await OrderBookController.getAll();
 
     // If success process and no pending orders. Then check candles.
-    console.log('running')
     if(response.success && response.payload.length < 1) {
       findAndBuy();
     } else {
