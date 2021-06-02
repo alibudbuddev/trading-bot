@@ -17,12 +17,11 @@ const _fiatAsset = 'BUSD';
 const _altAsset = 'XRP';
 const _pair = `${_altAsset}${_fiatAsset}`;
 const _tpPercentage = 0.005;
+const bot = require('./bot');
 
 const start = async () => {
   console.log(`Server started ${moment().toString()}`);
-  cron.schedule('1 * * * * *', async () => {
-    console.log(`Running this app every minute ${moment().toString()}`);
-  });
+  bot();
 };
 
 try {

@@ -25,6 +25,7 @@ const _tpPercentage = 0.005;
  */
 
 const start = async () => {
+  console.log('Bot running');
   cron.schedule('1 * * * * *', async () => {
     const response = await OrderBookController.getAll();
 
@@ -77,7 +78,7 @@ const start = async () => {
 
 const findAndBuy = async () => {
   const response = await _candleData(_pair, '1m', 6);
-  
+  console.log(response);
   console.log('Running find and buy');
   if(response.success) {
     if(isBounce(response.bars)) {
@@ -159,17 +160,19 @@ const addLog = async () => {
   console.log(result);
 };
 
-try {
-  const options = {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false};
-  const mongo = mongoose.connect(MONGODB_DATABASE, options);
-
-  mongo.then(async () => {
-    console.log(`MongoDB connected to ${MONGODB_DATABASE}`);
+module.exports = () => {
+  try {
+    // const options = {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false};
+    // const mongo = mongoose.connect(MONGODB_DATABASE, options);
     start();
-  }, error => {
-    console.error('MongoDB connection error:', error);
-    
-  })
-} catch (error) {
-  console.log(error.message);
+    // mongo.then(async () => {
+    //   console.log(`MongoDB connected to ${MONGODB_DATABASE}`);
+    //   start();
+    // }, error => {
+    //   console.error('MongoDB connection error:', error);
+      
+    // })
+  } catch (error) {
+    console.log(error.message);
+  }
 }
