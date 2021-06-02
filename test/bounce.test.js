@@ -4,6 +4,7 @@ const _pair = `DOGE${Util.fiatAsset}`;
 
 const run = async () => {
   const response = await _candleData(_pair, '1m', 6);
+  console.log(response);
   Bounce(response.bars);
 }
 
