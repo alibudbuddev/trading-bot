@@ -79,7 +79,9 @@ const findAndBuy = async () => {
   const response = await _candleData(_pair, '1m', 6);
   console.log('Running find and buy');
   if(response.success) {
-    if(isBounce(response.bars)) {
+    const candles = response.bars;
+    const bouncePattern = isBounce(candles);
+    if(bouncePattern) {
       const balanceResp = await getBalance();
       const currentBalance = balanceResp.payload.balance;
       const budgetLimit = 100;
@@ -89,22 +91,24 @@ const findAndBuy = async () => {
         return;
       };
 
-      const orderMeta = getOrderMetadata(response.current, candles[candles.length - 1], pattern.bullish.toString());
+      const orderMeta = bouncePattern;
+      orderMeta['pattern'] = 'bounce';
+      orderMeta['currentCandle'] = response.current;
       const quantity = budgetLimit / orderMeta.entryPrice;
       const currentDate = moment().toString();
 
       // Add entry
-      const OHCResp = await OrderHistoryController.create('limit', 'buy', orderMeta.entryPrice, quantity, currentDate, pattern.bullish.toString());
+      const OHCResp = await OrderHistoryController.create('limit', 'buy', orderMeta.entryPrice, quantity, currentDate, 'bounce');
       
       if(OHCResp.success) {
         // Deduct total from wallet
         await updateWallet(currentBalance - (orderMeta.entryPrice * quantity));
 
         // Add limit order
-        await OrderBookController.create('limit', orderMeta.limitPrice, quantity, currentDate, pattern.bullish.toString());
+        await OrderBookController.create('limit', orderMeta.limitPrice, quantity, currentDate, 'bounce');
 
         // Add stop loss order
-        await OrderBookController.create('stop_loss', orderMeta.stopLossLimit, quantity, currentDate, pattern.bullish.toString());
+        await OrderBookController.create('stop_loss', orderMeta.stopLossLimit, quantity, currentDate, 'bounce');
         console.log(`Long position placed with below data \n`, orderMeta);
       }
     }
