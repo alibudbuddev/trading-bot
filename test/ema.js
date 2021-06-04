@@ -4,7 +4,7 @@ const { _candleData } = require('./../lib/binance');
 const _pair = `DOGE${Util.fiatAsset}`;
 
 const run = async () => {
-  const period = 50;
+  const period = 10;
   const response = await _candleData(_pair, '1m', period);
                     
   const values = response.bars.map(x => {
