@@ -9,8 +9,8 @@ const { _binanceCore, _openOrders, _candleData, _assetBalance, _cancelAllOrders 
 const WalletController = require('./controllers/wallet-controller');
 const OrderBookController = require('./controllers/orderbook-controller');
 const OrderHistoryController = require('./controllers/orderhistory-controller');
-const _fiatAsset = 'BUSD';
-const _altAsset = 'DOGE';
+const _fiatAsset = 'USDT';
+const _altAsset = 'DTO';
 const _pair = `${_altAsset}${_fiatAsset}`;
 const _tpPercentage = 0.005;
 
