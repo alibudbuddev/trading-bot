@@ -10,7 +10,7 @@ const WalletController = require('./controllers/wallet-controller');
 const OrderBookController = require('./controllers/orderbook-controller');
 const OrderHistoryController = require('./controllers/orderhistory-controller');
 const _fiatAsset = 'USDT';
-const _altAsset = 'DTO';
+const _altAsset = 'GTO';
 const _pair = `${_altAsset}${_fiatAsset}`;
 const _tpPercentage = 0.005;
 
