@@ -3,10 +3,7 @@ const _ = require('lodash');
 const moment = require('moment-timezone');
 moment.tz.setDefault('Asia/Dubai');
 const isBounce = require('./lib/patterns/bounce');
-const { _binanceCore, _candleData, _openOrders, _assetBalance } = require('./lib/binance');
-const WalletController = require('./controllers/wallet-controller');
-const OrderBookController = require('./controllers/orderbook-controller');
-const OrderHistoryController = require('./controllers/orderhistory-controller');
+const { _candleData, _openOrders, _assetBalance } = require('./lib/binance');
 const _fiatAsset = 'USDT';
 const _altAsset = 'GTC';
 const _pair = `${_altAsset}${_fiatAsset}`;
@@ -33,41 +30,6 @@ const start = async () => {
     // If success process and no pending orders. Then check candles.
     if(response.success && response.orders.length < 1) {
       findAndBuy();
-    } else {
-      // console.log('Running find and sell');
-      // _binanceCore.prices(_pair, async (error, ticker) => {
-      //   if(!error) {
-      //     const currentPrice = parseFloat(ticker[_pair]);
-      //     const limitData = _.find(response.payload, {type: 'limit'});
-      //     const stopLossData = _.find(response.payload, {type: 'stop_loss'});
-      //     const currentDate = moment().toString();
-
-      //     if(currentPrice >= limitData.price) {
-      //       // Sell limit
-      //       const OHCResp = await OrderHistoryController.create('limit_maker', 'sell', limitData.price, limitData.quantity, currentDate, limitData.pattern);
-      //       if(OHCResp.success) {
-      //         // Deduct total from wallet
-      //         const balanceResp = await getBalance();
-      //         const currentBalance = balanceResp.payload.balance;
-      //         await updateWallet(currentBalance + (limitData.price * limitData.quantity));
-
-      //         await OrderBookController.deleteAll();
-      //         console.log(`Short position placed with below data \n`, limitData);
-      //       }
-      //     } else if(currentPrice <= stopLossData.price) {
-      //       const OHCResp = await OrderHistoryController.create('stop_loss', 'sell', stopLossData.price, stopLossData.quantity, currentDate, stopLossData.pattern);
-      //       if(OHCResp.success) {
-      //         // Deduct total from wallet
-      //         const balanceResp = await getBalance();
-      //         const currentBalance = balanceResp.payload.balance;
-      //         await updateWallet(currentBalance + (stopLossData.price * stopLossData.quantity));
-
-      //         await OrderBookController.deleteAll();
-      //         console.log(`Short position placed with below data \n`, stopLossData);
-      //       }
-      //     }
-      //   } 
-      // });
     }
 
     if(!response.success) {
@@ -124,13 +86,7 @@ const findAndBuy = async () => {
   }
 }
 
-const updateWallet = async (balance) => {
-  await WalletController.updateOrCreate(balance);
-}
-
 const getBalance = async () => {
-  // return await WalletController.getWallet();
-
   const response = await _assetBalance(_fiatAsset);
   if(!response.success) {
     console.log('Unable to check balance due to errors', response.error);
