@@ -1,18 +1,15 @@
 const cron = require('node-cron');
-const mongoose = require('mongoose');
 const _ = require('lodash');
 const moment = require('moment-timezone');
 moment.tz.setDefault('Asia/Dubai');
 const isBounce = require('./lib/patterns/bounce');
-const MONGODB_DATABASE = 'mongodb+srv://pmiGTtest:123qwe@cluster0.v5zev.mongodb.net/binance_test?authSource=admin&replicaSet=atlas-jyx4bp-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true';
-const { _binanceCore, _openOrders, _candleData, _assetBalance, _cancelAllOrders } = require('./lib/binance');
+const { _binanceCore, _candleData } = require('./lib/binance');
 const WalletController = require('./controllers/wallet-controller');
 const OrderBookController = require('./controllers/orderbook-controller');
 const OrderHistoryController = require('./controllers/orderhistory-controller');
 const _fiatAsset = 'USDT';
 const _altAsset = 'GTC';
 const _pair = `${_altAsset}${_fiatAsset}`;
-const _tpPercentage = 0.005;
 
 /**
  * Steps for the trading logic.
@@ -121,59 +118,13 @@ const updateWallet = async (balance) => {
   await WalletController.updateOrCreate(balance);
 }
 
-// Check if selected patterns is detected
-const checkIfPatternIsValid = (detectedPatterns = []) => {
-  try {
-    if(detectedPatterns.indexOf('Harami') >= 0) {
-      return true;
-    }
-  
-    if(detectedPatterns.indexOf('Engulfing') >= 0) {
-      return true;
-    }
-  
-    return false;
-  } catch (error) {
-    console.log(error.message);
-    return false;
-  }
-};
-
-const getOrderMetadata = (currentCandle, previousCandle, pattern) => {
-  const entryPrice= currentCandle.open + (currentCandle.open * 0.001);
-  const stopLoss = previousCandle.close;
-  const payload = {
-    entryPrice: entryPrice,
-    limitPrice: entryPrice + (entryPrice * _tpPercentage), // Get entry price + %0.05
-    stopLossTrigger: stopLoss + (stopLoss * 0.002),
-    stopLossLimit: stopLoss, // Get opening price of previous candle
-    currentCandle: currentCandle,
-    pattern: pattern
-  };
-  return payload;
-};
-
 const getBalance = async () => {
   return await WalletController.getWallet();
 };
 
-const addLog = async () => {
-  const result = await WalletController.updateOrCreate(125.32);
-  console.log(result);
-};
-
 module.exports = () => {
   try {
-    // const options = {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false};
-    // const mongo = mongoose.connect(MONGODB_DATABASE, options);
     start();
-    // mongo.then(async () => {
-    //   console.log(`MongoDB connected to ${MONGODB_DATABASE}`);
-    //   start();
-    // }, error => {
-    //   console.error('MongoDB connection error:', error);
-      
-    // })
   } catch (error) {
     console.log(error.message);
   }
