@@ -63,33 +63,34 @@ const findAndBuy = async () => {
       // orderMeta['pattern'] = 'bounce';
       // orderMeta['currentCandle'] = response.current;
       const quantity = util.precise(budgetLimit / orderMeta.entryPrice);
+      console.log('Order details', {orderMeta, ...quantity});
 
-      // Add entry
-      _binanceCore.buy(_pair, quantity, orderMeta.entryPrice, {type:'LIMIT'}, async (error, response) => {
-        if(error) {
-          console.error('Unable to place limit order', error);
-        } else {
-          console.info('PROD - Limit Buy response', response);
-          console.info('PROD - placing OCO order now');
+      // // Add entry
+      // _binanceCore.buy(_pair, quantity, orderMeta.entryPrice, {type:'LIMIT'}, async (error, response) => {
+      //   if(error) {
+      //     console.error('Unable to place limit order', error);
+      //   } else {
+      //     console.info('PROD - Limit Buy response', response);
+      //     console.info('PROD - placing OCO order now');
 
-          const flags = {
-            type: 'OCO',
-            pair: _pair,
-            limitPrice: util.precise(orderMeta.limitPrice),
-            quantity: quantity,
-            stopPrice: util.precise(orderMeta.stopPrice),
-            stopLimitPrice: orderMeta.stopLimitPrice
-          };
+      //     const flags = {
+      //       type: 'OCO',
+      //       pair: _pair,
+      //       limitPrice: util.precise(orderMeta.limitPrice),
+      //       quantity: quantity,
+      //       stopPrice: util.precise(orderMeta.stopPrice),
+      //       stopLimitPrice: orderMeta.stopLimitPrice
+      //     };
 
-          const OCOResult = await _newOCO(flags);
+      //     const OCOResult = await _newOCO(flags);
 
-          if(OCOResult.succcess) {
-            console.info('PROD - OCO order created', OCOResult);
-          } else {
-            console.error(OCOResult.error);
-          }
-        }
-      });
+      //     if(OCOResult.succcess) {
+      //       console.info('PROD - OCO order created', OCOResult);
+      //     } else {
+      //       console.error(OCOResult.error);
+      //     }
+      //   }
+      // });
     }
   } else {
     console.log(response.error);
