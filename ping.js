@@ -8,10 +8,16 @@ const moment = require('moment-timezone');
 moment.tz.setDefault('Asia/Dubai');
 const MONGODB_DATABASE = process.env.MONGODB_DATABASE;
 const bot = require('./bot');
+const prodBot = require('./bot.prod');
 
-const start = async () => {
-  console.log(`Server started ${moment().toString()}`);
-  bot();
+const start = async (type = 'test') => {
+  if(type == 'prod') {
+    console.log(`Production Server started ${moment().toString()}`);
+    prodBot();
+  } else {
+    console.log(`Server started ${moment().toString()}`);
+    bot();
+  }
 };
 
 try {
@@ -20,7 +26,7 @@ try {
 
   mongo.then(async () => {
     console.log(`MongoDB connected to ${MONGODB_DATABASE}`);
-    start();
+    start('prod');
   }, error => {
     console.error('MongoDB connection error:', error);
     
