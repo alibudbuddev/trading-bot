@@ -105,7 +105,7 @@ const findAndBuy = async () => {
         await OrderBookController.create('limit', orderMeta.limitPrice, quantity, currentDate, 'bounce');
 
         // Add stop loss order
-        await OrderBookController.create('stop_loss', orderMeta.stopLossLimit, quantity, currentDate, 'bounce');
+        await OrderBookController.create('stop_loss', orderMeta.stopLimitPrice, quantity, currentDate, 'bounce');
         console.log(`Long position placed with below data \n`, orderMeta);
       }
     }

@@ -3,9 +3,10 @@ const _ = require('lodash');
 const moment = require('moment-timezone');
 moment.tz.setDefault('Asia/Dubai');
 const isBounce = require('./lib/patterns/bounce');
-const { _candleData, _openOrders, _assetBalance } = require('./lib/binance');
+const util = require('./lib/util');
+const { _binanceCore, _candleData, _openOrders, _assetBalance, _newOCO } = require('./lib/binance');
 const _fiatAsset = 'USDT';
-const _altAsset = 'GTC';
+const _altAsset = 'BNB';
 const _pair = `${_altAsset}${_fiatAsset}`;
 
 /**
@@ -52,34 +53,43 @@ const findAndBuy = async () => {
         return;
       }
 
-      const budgetLimit = 100;
+      const budgetLimit = 12.5;
       if(currentBalance < budgetLimit) {
         console.info(`Not enough balance ${currentBalance}`);
         return;
       };
 
       const orderMeta = bouncePattern;
-      orderMeta['pattern'] = 'bounce';
-      orderMeta['currentCandle'] = response.current;
-      const quantity = budgetLimit / orderMeta.entryPrice;
-      // const currentDate = moment().toString();
+      // orderMeta['pattern'] = 'bounce';
+      // orderMeta['currentCandle'] = response.current;
+      const quantity = util.precise(budgetLimit / orderMeta.entryPrice);
 
-      console.log(quantity, orderMeta);
+      // Add entry
+      _binanceCore.buy(_pair, quantity, orderMeta.entryPrice, {type:'LIMIT'}, async (error, response) => {
+        if(error) {
+          console.error('Unable to place limit order', error);
+        } else {
+          console.info('Limit Buy response', response);
+          console.info('placing STOP order now');
 
-      // // Add entry
-      // const OHCResp = await OrderHistoryController.create('limit', 'buy', orderMeta.entryPrice, quantity, currentDate, 'bounce');
-      
-      // if(OHCResp.success) {
-      //   // Deduct total from wallet
-      //   await updateWallet(currentBalance - (orderMeta.entryPrice * quantity));
+          const flags = {
+            type: 'OCO',
+            pair: _pair,
+            limitPrice: util.precise(orderMeta.limitPrice),
+            quantity: quantity,
+            stopPrice: util.precise(orderMeta.stopPrice),
+            stopLimitPrice: orderMeta.stopLimitPrice
+          };
 
-      //   // Add limit order
-      //   await OrderBookController.create('limit', orderMeta.limitPrice, quantity, currentDate, 'bounce');
+          const OCOResult = await _newOCO(flags);
 
-      //   // Add stop loss order
-      //   await OrderBookController.create('stop_loss', orderMeta.stopLossLimit, quantity, currentDate, 'bounce');
-      //   console.log(`Long position placed with below data \n`, orderMeta);
-      // }
+          if(OCOResult.succcess) {
+            console.info('OCO order created', OCOResult);
+          } else {
+            console.error(OCOResult.error);
+          }
+        }
+      });
     }
   } else {
     console.log(response.error);
@@ -93,6 +103,16 @@ const getBalance = async () => {
     return false;
   }
   return response.balance;
+};
+
+const precise = (x) => {
+  const precisedValue = Number.parseFloat(x).toPrecision(4);
+
+  if(precisedValue >= 1) {
+    return parseFloat(Math.round(precisedValue));
+  }
+
+  return parseFloat(precisedValue);
 };
 
 module.exports = () => {
