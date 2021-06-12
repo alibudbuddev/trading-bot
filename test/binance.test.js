@@ -1,7 +1,8 @@
-const { _binanceCore, _openOrders, _candleData, _assetBalance } = require('./../lib/binance');
+const { _binanceCore, _openOrders, _candleData, _assetBalance, _newOCO } = require('./../lib/binance');
 const _fiatAsset = 'USDT';
-const _altAsset = 'BTC';
+const _altAsset = 'XRP';
 const _pair = `${_altAsset}${_fiatAsset}`;
+const prodBot = require('./../bot.prod');
 
 const test = {};
 
@@ -32,10 +33,30 @@ test.assetBalance = async () => {
   console.log(response.balance);
 }
 
+test.oco = async () => {
+  const flags = {
+    type: 'OCO',
+    pair: _pair,
+    limitPrice: 0.86000000,
+    quantity: 13.95,
+    stopPrice: 12.1,
+    stopLimitPrice: 12
+  };
+
+  const response = await _newOCO(flags);
+  if(!response.success) {
+    console.log('Unable to create OCO order due to errors', response.error);
+    return;
+  }
+  console.log(response);
+}
+
 test.run = () => {
   // test.openOrders();
   // test.candleData();
-  test.assetBalance();
+  // test.assetBalance();
+  // prodBot();
+  // test.oco();
 }
 
 test.run();
