@@ -105,16 +105,6 @@ const getBalance = async () => {
   return response.balance;
 };
 
-const precise = (x) => {
-  const precisedValue = Number.parseFloat(x).toPrecision(4);
-
-  if(precisedValue >= 1) {
-    return parseFloat(Math.round(precisedValue));
-  }
-
-  return parseFloat(precisedValue);
-};
-
 module.exports = () => {
   try {
     start();
