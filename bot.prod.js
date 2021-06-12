@@ -20,7 +20,7 @@ const _pair = `${_altAsset}${_fiatAsset}`;
  */
 
 const start = async () => {
-  console.log('Bot running');
+  console.log('@@@ PRODUCTION BOT RUNNING @@@');
   cron.schedule('1 * * * * *', async () => {
     const response = await _openOrders(_pair);
     if(!response.success) {
@@ -41,7 +41,7 @@ const start = async () => {
 
 const findAndBuy = async () => {
   const response = await _candleData(_pair, '1m', 10);
-  console.log('Running find and buy');
+  console.log('PROD - Running find and buy');
   if(response.success) {
     const candles = response.bars;
     const bouncePattern = isBounce(candles);
@@ -69,8 +69,8 @@ const findAndBuy = async () => {
         if(error) {
           console.error('Unable to place limit order', error);
         } else {
-          console.info('Limit Buy response', response);
-          console.info('placing STOP order now');
+          console.info('PROD - Limit Buy response', response);
+          console.info('PROD - placing OCO order now');
 
           const flags = {
             type: 'OCO',
@@ -84,7 +84,7 @@ const findAndBuy = async () => {
           const OCOResult = await _newOCO(flags);
 
           if(OCOResult.succcess) {
-            console.info('OCO order created', OCOResult);
+            console.info('PROD - OCO order created', OCOResult);
           } else {
             console.error(OCOResult.error);
           }
