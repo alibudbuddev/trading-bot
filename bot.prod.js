@@ -87,7 +87,11 @@ const findAndBuy = async () => {
           if(OCOResult.succcess) {
             console.info('PROD - OCO order created', OCOResult);
           } else {
-            console.error(OCOResult.error);
+            try {
+              console.log(JSON.stringify(OCOResult));
+            } catch (error) {
+              console.error(OCOResult.error);
+            }
           }
         }
       });
