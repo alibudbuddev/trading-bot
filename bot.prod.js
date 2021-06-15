@@ -6,7 +6,7 @@ const isBounce = require('./lib/patterns/bounce');
 const util = require('./lib/util');
 const { _binanceCore, _candleData, _openOrders, _assetBalance, _newOCO } = require('./lib/binance');
 const _fiatAsset = 'USDT';
-const _altAsset = 'BNB';
+const _altAsset = 'DOGE';
 const _pair = `${_altAsset}${_fiatAsset}`;
 
 /**
@@ -81,6 +81,12 @@ const findAndBuy = async () => {
             stopPrice: util.precise(orderMeta.stopPrice),
             stopLimitPrice: orderMeta.stopLimitPrice
           };
+
+          // TODO: handle "The relationship of the prices for the orders is not correct." error.
+          // The prices set in the OCO is breaking the Price rules.
+            // The rules are:
+            // SELL Orders: Limit Price > Last Price > Stop Price
+            // BUY Orders: Limit Price < Last Price < Stop Price
 
           const OCOResult = await _newOCO(flags);
 
