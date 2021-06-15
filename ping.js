@@ -13,10 +13,10 @@ const prodBot = require('./bot.prod');
 const start = async (type = 'test') => {
   if(type == 'prod') {
     console.log(`Production Server started ${moment().toString()}`);
-    prodBot();
+    // prodBot();
   } else {
     console.log(`Server started ${moment().toString()}`);
-    bot();
+    // bot();
   }
 };
 
